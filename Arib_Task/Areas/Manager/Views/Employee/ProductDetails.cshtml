@@ -1,0 +1,206 @@
+﻿@model Elghonemy_Store.ViewModels.ProductViewModels.ProductDetailsViewModel
+
+@{
+    ViewBag.Title = "تفاصيل المنتج - " + Model.Name;
+}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- عمود الصور -->
+        <div class="col-md-6">
+            <div class="main-image-container text-center mb-3">
+                <img id="mainProductImage" src="@Model.ImageUrls.FirstOrDefault()" alt="@Model.Name"
+                     class="img-fluid main-image rounded"
+                     data-bs-toggle="modal" data-bs-target="#imageModal"
+                     style="cursor: zoom-in;" />
+            </div>
+
+            <div class="thumbs-container d-flex flex-wrap justify-content-center gap-2">
+                @foreach (var imgUrl in Model.ImageUrls)
+                {
+                    <img src="@imgUrl" alt="@Model.Name"
+                         class="thumbnail-image border"
+                         onclick="document.getElementById('mainProductImage').src='@imgUrl';" />
+                }
+            </div>
+
+            <!-- Modal يحتوي على سلايدر -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content bg-transparent border-0">
+                        <div class="modal-body p-0">
+                            <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    @for (int i = 0; i < Model.ImageUrls.Count; i++)
+                                    {
+                                        var isActive = i == 0 ? "active" : "";
+                                        <div class="carousel-item @isActive">
+                                            <img src="@Model.ImageUrls[i]" class="d-block w-100 rounded" style="max-height: 90vh; object-fit: contain;" />
+                                        </div>
+                                    }
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">السابق</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">التالي</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عرض الفيديو لو موجود -->
+            @if (!string.IsNullOrEmpty(Model.VideoEmbedUrl))
+            {
+                <div class="ratio ratio-16x9 mt-3">
+                    <iframe src="@Model.VideoEmbedUrl" title="فيديو المنتج" allowfullscreen></iframe>
+                </div>
+            }
+        </div>
+
+        <!-- عمود التفاصيل -->
+        <div class="col-md-6">
+            <h2 class="fw-bold">@Model.Name</h2>
+
+            <div class="mb-3">
+                <span class="badge bg-success fs-5">
+                    @Model.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("ar-EG"))
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <strong>القسم:</strong> <span class="text-muted">@(Model.Category?.Name ?? "غير محدد")</span>
+            </div>
+
+            <div class="mb-4" style="line-height: 1.6; font-size: 1.1rem;">
+                @Model.Description
+            </div>
+
+            <!-- عرض المقاسات لو موجودة -->
+            @if (Model.Sizes != null && Model.Sizes.Any())
+            {
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mb-4">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label for="sizeSelect" class="form-label fw-bold">اختر المقاس:</label>
+
+                        <!-- الحالة العامة للمقاسات -->
+                        @if (Model.CanEditSize)
+                        {
+                            <span class="badge bg-success mb-2">يمكن تعديل المقاسات</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary mb-2">المقاسات ثابتة</span>
+                        }
+
+                        <select id="sizeSelect" name="selectedSize" class="form-select" required>
+                            <option value="" disabled selected>اختر المقاس</option>
+                            @foreach (var size in Model.Sizes)
+                            {
+                                <option value="@size.Size">
+                                    @size.Size - @size.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("ar-EG"))
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <p>القيمة من ViewModel: @Model.CanEditSize</p>
+
+
+                    <div class="mb-3">
+                        <label for="quantityInput" class="form-label fw-bold">الكمية:</label>
+                        <input type="number" id="quantityInput" name="quantity" value="1" min="1" class="form-control" style="width: 100px;" required />
+                    </div>
+
+@*                     <button type="submit" class="btn btn-warning btn-lg fw-bold px-4">أضف للسلة</button>
+ *@
+                    @if (User.IsInRole("User"))
+                    {
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold px-4">أضف للسلة</button>
+                    }
+
+</form>
+            }
+            else
+            {
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex align-items-center gap-3 mb-4">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 80px;" />
+                    <button type="submit" class="btn btn-warning btn-lg fw-bold px-4">أضف للسلة</button>
+                </form>
+            }
+
+            <hr class="my-4" />
+
+            <div>
+                <strong>معلومات إضافية:</strong>
+                <ul class="list-unstyled mt-2" style="font-size: 0.9rem;">
+                    <li>• رقم المنتج: @Model.Id</li>
+                    <li>• الحالة: متوفر</li>
+                    <li>• توصيل سريع وآمن</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // استمع للضغط على صور thumbnails
+    document.querySelectorAll('.thumbnail-image').forEach(function(img, index) {
+        img.addEventListener('click', function() {
+            // تغيير صورة العرض الرئيسية
+            document.getElementById('mainProductImage').src = this.src;
+
+            // تعيين slide index للcarousel عند الفتح
+            var carousel = new bootstrap.Carousel(document.getElementById('productImagesCarousel'));
+            carousel.to(index);
+        });
+    });
+
+    // لما تفتح المودال، خلي الcarousel يبدأ من الصورة الحالية للmainProductImage
+    var imageModal = document.getElementById('imageModal');
+    imageModal.addEventListener('show.bs.modal', function () {
+        var mainSrc = document.getElementById('mainProductImage').src;
+        var carouselItems = document.querySelectorAll('#productImagesCarousel .carousel-item img');
+        var indexToShow = 0;
+        carouselItems.forEach((img, i) => {
+            if (img.src === mainSrc) {
+                indexToShow = i;
+            }
+        });
+        var carousel = new bootstrap.Carousel(document.getElementById('productImagesCarousel'));
+        carousel.to(indexToShow);
+    });
+</script>
+<style>
+    .thumbnail-image {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: transform 0.2s ease-in-out, border 0.2s;
+    }
+
+
+
+
+        .thumbnail-image:hover {
+            transform: scale(1.05);
+            border-color: #ffc107;
+        }
+
+
+
+
+    @@media (max-width: 576px) {
+        .thumbnail-image {
+            width: 60px;
+            height: 60px;
+        }
+    }
+</style>

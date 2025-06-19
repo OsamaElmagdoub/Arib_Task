@@ -1,0 +1,69 @@
+﻿@model Arib_Task.Areas.Manager.ViewModels.EmployeeViewModel.AddEmployeeViewModel
+
+@{
+    ViewBag.Title = "إضافة موظف جديد";
+}
+
+<h2 class="mb-4 text-primary fw-bold">@ViewBag.Title</h2>
+
+<div class="card shadow-sm rounded-4 border-0">
+    <div class="card-body">
+        <form asp-action="CreateEmployee" method="post" enctype="multipart/form-data">
+            <!-- الاسم الأول -->
+            <div class="mb-3">
+                <label asp-for="FirstName" class="form-label fw-bold">الاسم الأول</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+
+            <!-- الاسم الأخير -->
+            <div class="mb-3">
+                <label asp-for="LastName" class="form-label fw-bold">الاسم الأخير</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+
+            <!-- الراتب -->
+            <div class="mb-3">
+                <label asp-for="Salary" class="form-label fw-bold">الراتب</label>
+                <input asp-for="Salary" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Salary" class="text-danger small"></span>
+            </div>
+
+            <!-- صورة الموظف -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">صورة الموظف</label>
+                <input type="file" name="ImageFile" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+            </div>
+
+            <!-- اسم المدير -->
+            <div class="mb-3">
+                <label asp-for="ManagerId" class="form-label fw-bold">المدير</label>
+                <select asp-for="ManagerId" class="form-select" asp-items="ViewBag.Managers">
+                    <option value="">اختر المدير</option>
+                </select>
+                <span asp-validation-for="ManagerId" class="text-danger small"></span>
+
+                <div class="form-group mb-3">
+                    <label class="form-label fw-bold">اسم المدير</label>
+                    <select asp-for="ManagerId" asp-items="ViewBag.Managers" class="form-select"></select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label fw-bold">القسم</label>
+                    <select asp-for="DepartmentId" asp-items="ViewBag.Departments" class="form-select"></select>
+                </div>
+
+
+
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">إضافة الموظف</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}

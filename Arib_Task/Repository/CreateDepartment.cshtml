@@ -1,0 +1,64 @@
+﻿@using Arib_Task.Areas.Manager.ViewModels
+@using Arib_Task.Areas.Manager.ViewModels.DepartmentViewModels
+@model AddDepartmentViewModel
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">@* ➕ *@ إضافة قسم جديد</h2>
+        <a href="@Url.Action("Index", "Department", new { area = "Manager" })" class="btn btn-outline-primary">
+            ← الرجوع لجميع الأقسام
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form asp-action="CreateDepartment" method="post">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-bold">اسم القسم</label>
+                    <input asp-for="Name" class="form-control"  />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    💾 حفظ القسم
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="successModalLabel">✅ تم بنجاح</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <p class="fs-5 text-primary">تم إضافة القسم بنجاح 🎉</p>
+            </div>
+
+            <div class="modal-footer justify-content-between bg-light">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">متابعة</button>
+                <a href="@Url.Action("Index", "Department", new { area = "Manager" })" class="btn btn-primary">
+                    الذهاب لجميع الأقسام
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            var showModal = '@(ViewBag.ShowSuccessModal ?? false)'.toLowerCase() === 'true';
+            if (showModal) {
+                $('#successModal').modal('show');
+            }
+        });
+    </script>
+}

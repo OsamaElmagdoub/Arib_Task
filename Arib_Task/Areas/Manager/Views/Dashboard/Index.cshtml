@@ -1,0 +1,62 @@
+﻿@model DashboardViewModel
+@{
+    ViewData["Title"] = "لوحة التحكم المدير";
+}
+
+
+<div class="container">
+    <div class="row text-center mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold">@ViewBag.Title</h2>
+
+      
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow rounded-3">
+                <div class="card-body">
+                    <i class="fa fa-cube fa-3x text-primary mb-3"></i>
+                    <h5>عدد المنتجات</h5>
+@*                     <h2>@Model.ProductCount</h2>
+ *@                    <a href="@Url.Action("Index", "Product", new { Area = "Admin" })" class="btn btn-outline-primary mt-2">عرض المنتجات</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow rounded-3">
+                <div class="card-body">
+                    <i class="fa fa-th-large fa-3x text-success mb-3"></i>
+                    <h5>عدد الأقسام</h5>
+@*                     <h2>@Model.CategoryCount</h2>
+ *@                    <a href="@Url.Action("Index", "Category", new { Area = "Admin" })" class="btn btn-outline-success mt-2">عرض الأقسام</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow rounded-3">
+                <div class="card-body">
+                    <i class="fa fa-shopping-cart fa-3x text-warning mb-3"></i>
+                    <h5>عدد الطلبات</h5>
+@*                     <h2>@Model.OrdersCount</h2>
+ *@                    <a href="@Url.Action("AllOrders", "Order")" class="btn btn-outline-warning mt-2">عرض الطلبات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6 text-center">
+            <a  href="@Url.Action("CreateDepartment", "Department", new { area = "Manager" })"  class="btn btn-primary btn-lg w-75">إضافة قسم جديد</a>
+        </div>
+        <div class="col-md-6 text-center">
+            <a @* href="@Url.Action("CreateProduct", "Product", new { area = "Admin" })" *@ class="btn btn-success btn-lg w-75">إضافة موظف جديد</a>
+        </div>
+    </div>
+
+
+            
+        </div>
+    </div>
+</div>

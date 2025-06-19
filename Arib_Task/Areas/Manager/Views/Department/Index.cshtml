@@ -1,0 +1,95 @@
+﻿<style>
+    thead {
+        background-color: #e9f1ff; /* أزرق فاتح */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:hover {
+        background-color: #f1f1f1;
+        transition: 0.3s;
+    }
+
+    .btn-sm:hover {
+        opacity: 0.9;
+        transform: scale(1.02);
+        transition: 0.2s ease-in-out;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+
+@model IEnumerable<Arib_Task.Models.Department>
+
+@{
+    ViewBag.Title = "عرض الأقسام";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 text-primary fw-bold">@ViewBag.Title</h2>
+    <a asp-action="CreateCategory" asp-controller="Category" asp-area="Admin" class="btn btn-success shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> إضافة قسم جديد
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center shadow rounded-4 overflow-hidden">
+        <thead class="text-secondary fw-bold">
+            <tr>
+                <th style="width: 40%;">اسم القسم</th>
+                <th style="width: 20%;">عدد الموظفين</th>
+                <th style="width: 40%;">التحكم</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var department in Model)
+            {
+                <tr>
+                    <td class="fw-semibold fs-6">@department.Name</td>
+                     <td>@(department.Employees?.Count ?? 0)</td>
+                     <td>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <a asp-action="EditCategory" asp-controller="Category" asp-area="Admin" asp-route-id="@department.Id"
+                               class="btn btn-sm btn-warning text-white shadow-sm">
+                                <i class="bi bi-pencil-square me-1"></i> تعديل
+                            </a>
+
+                            <form asp-action="SoftDeleteCategory" asp-controller="Category" method="post" asp-area="Admin" class="delete-form">
+                                <input type="hidden" name="id" value="@department.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger text-white shadow-sm delete-btn">
+                                    <i class="bi bi-trash me-1"></i> حذف
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // منع الإرسال الفوري
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: "لن تتمكن من التراجع عن هذا!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'نعم، احذفه!',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // إرسال الفورم لو تأكد المستخدم
+                }
+            });
+        });
+    });
+</script>
