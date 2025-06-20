@@ -11,7 +11,7 @@ namespace Arib_Task.Repository.ProductRepository
         //Task<IEnumerable<Employee>> Search(string keyword);
         //void DeleteProduct(int productId);
         //Task<bool> UpdateProduct(int id, EditProductViewModel viewModel);
-
+        Task<Employee?> GetEmployeeWithDetailsById(int id);
         Task<int> Count();
         //Task<Product?> GetProductById(int id);
 

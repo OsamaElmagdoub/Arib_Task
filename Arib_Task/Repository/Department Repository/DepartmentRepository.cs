@@ -1,17 +1,16 @@
 ﻿using Arib_Task.ApplicationDbContext;
 using Arib_Task.Models;
 using Arib_Task.Repository.Department_Repository;
-using Arib_Task.Repository.Manager_Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Arib_Task.Repository.Category_Repository
 {
 
-    public class ManagerRepository : GenericRepository<Department>, IDepartmentRepository
+    public class DepartmentRepository : GenericRepository<Department>, IDepartmentRepository
     {
         private readonly AppDbContext _context;
 
-        public ManagerRepository(AppDbContext context) : base(context)
+        public DepartmentRepository(AppDbContext context) : base(context)
         {
             _context = context;
         }

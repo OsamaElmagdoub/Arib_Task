@@ -1,0 +1,58 @@
+﻿@model Arib_Task.Areas.Manager.ViewModels.EmployeeViewModels.EmployeeDetailsViewModel
+
+@{
+    ViewBag.Title = "تفاصيل الموظف";
+}
+
+<h2 class="mb-4 text-primary fw-bold">@ViewBag.Title</h2>
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body">
+        <div class="row">
+            <!-- صورة الموظف -->
+            <div class="col-md-4 text-center">
+                <img src="@Model.ImageUrl" alt="صورة الموظف" class="img-thumbnail rounded-circle shadow" style="width: 200px; height: 200px; object-fit: cover;" />
+            </div>
+
+            <!-- بيانات الموظف -->
+            <div class="col-md-8">
+                <dl class="row fs-5">
+                    <dt class="col-sm-4">الاسم الكامل:</dt>
+                    <dd class="col-sm-8">@Model.FullName</dd>
+
+                    <dt class="col-sm-4">الراتب:</dt>
+                    <dd class="col-sm-8">@Model.Salary.ToString("C")</dd>
+
+                    <dt class="col-sm-4">المدير:</dt>
+                    <dd class="col-sm-8">@Model.ManagerName</dd>
+
+                    <dt class="col-sm-4">القسم:</dt>
+                    <dd class="col-sm-8">@Model.DepartmentName</dd>
+                </dl>
+            </div>
+        </div>
+
+        <hr class="my-4" />
+
+        @* <div>
+            <h5 class="fw-bold text-secondary">المهام المسندة:</h5>
+            @if (Model.TaskTitles != null && Model.TaskTitles.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var task in Model.TaskTitles)
+                    {
+                        <li class="list-group-item">@task</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted fst-italic">لا توجد مهام مسندة لهذا الموظف.</p>
+            }
+        </div> *@
+
+        <div class="mt-4">
+            <a asp-action="Index" class="btn btn-outline-primary">⬅️ الرجوع إلى القائمة</a>
+        </div>
+    </div>
+</div>

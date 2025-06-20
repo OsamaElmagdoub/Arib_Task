@@ -4,9 +4,12 @@ using Arib_Task.Models;
 using Arib_Task.Repository;
 using Arib_Task.Repository.Category_Repository;
 using Arib_Task.Repository.Department_Repository;
+using Arib_Task.Repository.Employee_Repository;
+using Arib_Task.Repository.Manager_Repository;
 using Arib_Task.Repository.ProductRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ManagerRepository = Arib_Task.Repository.Manager_Repository.ManagerRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +17,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<ImanagerRepository, ManagerRepository>();
+builder.Services.AddScoped<ImanagerRepository,ManagerRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IDepartmentRepository,DepartmentRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

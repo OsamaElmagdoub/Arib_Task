@@ -69,6 +69,15 @@ namespace Arib_Task.Repository.Employee_Repository
             return await _context.Employees.CountAsync();
         }
 
+        public async Task<Employee?> GetEmployeeWithDetailsById(int id)
+        {
+            return await _context.Employees
+                .Include(e => e.Manager)
+                .Include(e => e.Department)
+                .Include(e => e.Tasks)
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+
         //public async Task<Product?> GetProductById(int id)
         //{
         //    return await _context.Products
