@@ -3,17 +3,11 @@
     public class EmployeeDetailsViewModel
     {
         public int Id { get; set; }
-
         public string FullName { get; set; }
-
         public decimal Salary { get; set; }
-
         public string? ImageUrl { get; set; }
-
-        public string ManagerName { get; set; }
-
         public string DepartmentName { get; set; }
-
-        //public List<string> TaskTitles { get; set; } = new();
+        public string ManagerName { get; set; }
     }
+
 }

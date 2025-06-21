@@ -1,5 +1,4 @@
 ﻿
-using Arib_Task.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,15 +25,15 @@ namespace Arib_Task.Areas.Manager.ViewModels.EmployeeViewModel
         public IFormFile? ImageFile { get; set; }
 
 
-        [Required(ErrorMessage = "اختر مدير")]
-        [Display(Name = "المدير")]
-        public int ManagerId { get; set; }
+        [Required(ErrorMessage = "اسم المدير مطلوب")]
+        [Display(Name = "اسم المدير")]
+
+        public string ManagerName { get; set; } 
 
         [Required(ErrorMessage = "اختر قسم")]
         [Display(Name = "القسم")]
         public int DepartmentId { get; set; }
 
-        public IEnumerable<SelectListItem>? Managers { get; set; } // علشان Dropdown
         public IEnumerable<SelectListItem>? Departments { get; set; }
     }
 }

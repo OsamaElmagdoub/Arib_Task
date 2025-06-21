@@ -14,20 +14,16 @@ namespace Arib_Task.Areas.Admin.Helpers
             bool isPartial = false
             )
         {
-            // جهز الموديل
              controller.ViewData.Model = model;
 
             using var writer = new StringWriter();
-            // جبنا الـ View Engine
             var viewEngine = controller.HttpContext.RequestServices
                 .GetRequiredService<ICompositeViewEngine>();
-            // جبنا الـ View
             var viewResult = viewEngine.FindView(controller.ControllerContext, viewName, !isPartial);
 
             if(!viewResult.Success)
                 throw new Exception($"View '{viewName}' not found.");
 
-            // جهز السياق
             var viewContext = new ViewContext(
             controller.ControllerContext,
             viewResult.View,
@@ -36,7 +32,6 @@ namespace Arib_Task.Areas.Admin.Helpers
             writer,
             new HtmlHelperOptions()
         );
-            // اعرض الـ View كـ HTML
             await viewResult.View.RenderAsync(viewContext);
             return writer.ToString();
 

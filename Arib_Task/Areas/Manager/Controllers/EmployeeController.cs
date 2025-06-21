@@ -8,6 +8,7 @@ using Arib_Task.Repository.Manager_Repository;
 using Arib_Task.Models;
 using Microsoft.AspNetCore.Hosting;
 using Arib_Task.Areas.Manager.ViewModels.EmployeeViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace Arib_Task.Areas.Manager.Controllers
 {
@@ -37,40 +38,80 @@ namespace Arib_Task.Areas.Manager.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateEmployee()
         {
-            ViewBag.Managers = new SelectList(await _managerRepository.GetAll(), "Id", "Name");
-            ViewBag.Departments = new SelectList(await _departmentRepository.GetAll(), "Id", "Name");
+            var departments = await _departmentRepository.GetAll();
 
-            return View(new AddEmployeeViewModel());
+            var model = new AddEmployeeViewModel
+            {
+                Departments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.Name
+                })
+            };
+
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateEmployee(AddEmployeeViewModel model)
         {
+            // التحقق من صحة البيانات
             if (!ModelState.IsValid)
             {
-                ViewBag.Managers = new SelectList(await _managerRepository.GetAll(), "Id", "Name");
-                ViewBag.Departments = new SelectList(await _departmentRepository.GetAll(), "Id", "Name");
+                var departments = await _departmentRepository.GetAll();
+                model.Departments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.Name
+                });
+
                 return View(model);
             }
 
-
-            var employee = new Employee
+            // التحقق من وجود المدير بالاسم
+            var manager = await _managerRepository.GetByName(model.ManagerName?.Trim());
+            if (manager == null)
             {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Salary = model.Salary,
-                //ImageUrl = imageName,
-                DepartmentId = model.DepartmentId,
-                ManagerId = model.ManagerId
-            };
+                ModelState.AddModelError("ManagerName", "❌ المدير غير موجود بالاسم المدخل");
+
+                var departments = await _departmentRepository.GetAll();
+                model.Departments = departments.Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.Name
+                });
+
+                return View(model);
+            }
+
+            // رفع الصورة إن وجدت
+            string? imageUrl = null;
+            if (model.ImageFile is { Length: > 0 })
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/employees");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid() + Path.GetExtension(model.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await model.ImageFile.CopyToAsync(stream);
+
+                imageUrl = "/images/employees/" + uniqueFileName;
+            }
+
+            // تحويل الـ ViewModel إلى Model باستخدام AutoMapper
+            var employee = _mapper.Map<Employee>(model);
+            employee.ManagerId = manager.Id;
+            employee.ImageUrl = imageUrl;
 
             await _employeeRepository.Add(employee);
+            await _employeeRepository.SaveChanges();
 
-            TempData["Success"] = "تمت إضافة الموظف بنجاح ✅";
-            return RedirectToAction("Index");
+            TempData["Success"] = "✅ تم إضافة الموظف بنجاح";
+            return RedirectToAction("AllEmployees");
         }
-
 
         public async Task<IActionResult> Details(int id)
         {
@@ -83,62 +124,15 @@ namespace Arib_Task.Areas.Manager.Controllers
             return View(viewModel);
         }
 
+        public async Task<IActionResult> AllEmployees()
+        {
+            var employees = await _employeeRepository.GetAllWithDepartmentAndManagerAsync();
+
+            var viewModel = _mapper.Map<List<EmployeeDetailsViewModel>>(employees);
+
+            return View(viewModel);
+        }
 
     }
 
-    //public IActionResult DeleteProduct(int productId)
-    //{
-    //    _productRepository.DeleteProduct(productId);
-    //    return RedirectToAction("Index");
-    //}
-
-    //public async Task<IActionResult> ProductDetails(int id)
-    //{
-    //    var product = await _productRepository.GetProductById(id);
-    //    if (product == null) return NotFound();
-
-    //    _logger.LogInformation("VideoEmbedUrl after manual mapping: " + product.VideoUrl);
-
-    //    var viewModel = new ProductDetailsViewModel
-    //    {
-    //        Id = product.Id,
-    //        Name = product.Name,
-    //        Description = product.Description,
-    //        Price = product.Price,
-    //        ImageUrls = product.Images?.Select(img => img.ImageUrl).ToList() ?? new List<string>(), // ✅ الصور
-    //        Category = product.Category, // تأكد أن النوع متوافق مع الـ ViewModel
-    //        VideoEmbedUrl = string.IsNullOrEmpty(product.VideoUrl)
-    //            ? string.Empty
-    //            : YouTubeHelper.ConvertYouTubeUrlToEmbed(product.VideoUrl),
-
-    //        // إضافة المقاسات وتحويلها إلى ViewModel
-    //        Sizes = product.Sizes?.Select(s => new ProductSizeViewModel
-    //        {
-    //            Size = s.Size,
-    //            Price = s.Price,
-    //            CanEditSize = s.CanEditSize  // أو اسم الخاصية حسب الموديل عندك
-    //        }).ToList() ?? new List<ProductSizeViewModel>()
-    //    };
-
-    //    return View(viewModel);
-    //}
-
-
-    //    [HttpPost]
-    //    [ValidateAntiForgeryToken]
-    //    public async Task<IActionResult> EditProduct(int id, EditProductViewModel model)
-    //    {
-    //        if (!ModelState.IsValid)
-    //            return View(model);
-
-    //        var success = await _productRepository.UpdateProduct(id, model);
-    //        if (!success)
-    //        {
-    //            return NotFound();
-    //        }
-
-    //        return RedirectToAction("Index");
-    //    }
-
-    //}
 }

@@ -35,7 +35,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 var app = builder.Build();
 
-    //✅ 7. إنشاء حساب Admin تلقائيًا
     var scope = app.Services.CreateScope();
     var userManger = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -73,13 +72,35 @@ if (employee == null)
 }
 
 
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+
+    context.Database.Migrate();
+
+    if (!context.Managers.Any())
+    {
+        var department1 = context.Departments.FirstOrDefault(d => d.Name == "sales");
+        var department2 = context.Departments.FirstOrDefault(d => d.Name == "hr");
+
+        if (department1 != null && department2 != null)
+        {
+            var managers = new List<Manager>
+            {
+                new Manager { Name = "Osama", DepartmentId = department1.Id },
+                new Manager { Name = "Ahmed", DepartmentId = department2.Id }
+            };
+
+            context.Managers.AddRange(managers);
+            context.SaveChanges();
+        }
+    }
 
 
-// Configure the HTTP request pipeline.
+
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -96,7 +117,6 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    //pattern: "{controller=Home}/{action=Index}/{id?}");
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

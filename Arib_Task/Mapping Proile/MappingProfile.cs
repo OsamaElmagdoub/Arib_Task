@@ -10,18 +10,18 @@ namespace Arib_Task.Mapping_Proile
     {
         public MappingProfile()
         {
-            // Department
-            CreateMap<Department,AddDepartmentViewModel>().ReverseMap();
+            CreateMap<Department, AddDepartmentViewModel>().ReverseMap();
 
-            CreateMap<Employee, AddEmployeeViewModel>().ReverseMap();
-
-
+            CreateMap<AddEmployeeViewModel, Employee>()
+                   .ForMember(dest => dest.ImageUrl, opt => opt.Ignore());
+            
             CreateMap<Employee, EmployeeDetailsViewModel>()
-    .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-    .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.Name))
-    .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department.Name));
-    //.ForMember(dest => dest.TaskTitles, opt => opt.MapFrom(src => src.Tasks.Select(t => t.Title).ToList()));
-
+                        .ForMember(dest => dest.FullName,
+                                   opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                        .ForMember(dest => dest.DepartmentName,
+                                   opt => opt.MapFrom(src => src.Department.Name))
+                        .ForMember(dest => dest.ManagerName,
+                                   opt => opt.MapFrom(src => src.Manager.Name));
         }
     }
 }

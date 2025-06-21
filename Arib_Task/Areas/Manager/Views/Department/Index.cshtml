@@ -1,6 +1,12 @@
-﻿<style>
+﻿@model IEnumerable<Arib_Task.Models.Department>
+
+@{
+    ViewBag.Title = "عرض الأقسام";
+}
+
+<style>
     thead {
-        background-color: #e9f1ff; /* أزرق فاتح */
+        background-color: #e9f1ff;
     }
 
     tbody tr:nth-child(even) {
@@ -23,48 +29,66 @@
     }
 </style>
 
-@model IEnumerable<Arib_Task.Models.Department>
-
-@{
-    ViewBag.Title = "عرض الأقسام";
-}
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0 text-primary fw-bold">@ViewBag.Title</h2>
-    <a asp-action="CreateCategory" asp-controller="Category" asp-area="Admin" class="btn btn-success shadow-sm">
+    <a asp-action="CreateDepartment" asp-controller="Department" asp-area="Manager" class="btn btn-success shadow-sm">
         <i class="bi bi-plus-circle me-1"></i> إضافة قسم جديد
     </a>
 </div>
 
+<!-- 🔍 Search & Counters -->
+<div class="row mb-3">
+    <div class="col-md-6 mb-2">
+        <input id="searchInput" type="text" class="form-control" placeholder="🔍 ابحث باسم القسم..." />
+    </div>
+    <div class="col-md-6 text-end">
+        <span class="badge bg-primary me-2">👥 عدد الموظفين: <span id="employeeCount">0</span></span>
+        <span class="badge bg-success">💰 مجموع المرتبات: <span id="salaryTotal">0</span> ج.م</span>
+    </div>
+</div>
+
 <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle text-center shadow rounded-4 overflow-hidden">
+    <table class="table table-bordered table-hover align-middle text-center shadow rounded-4 overflow-hidden" id="departmentTable">
         <thead class="text-secondary fw-bold">
             <tr>
-                <th style="width: 40%;">اسم القسم</th>
-                <th style="width: 20%;">عدد الموظفين</th>
-                <th style="width: 40%;">التحكم</th>
+                <th>اسم القسم</th>
+                <th>عدد الموظفين</th>
+                <th>مجموع المرتبات</th>
+                <th>التحكم</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var department in Model)
             {
+                var empCount = department.Employees?.Count ?? 0;
+                var salarySum = department.Employees?.Sum(e => e.Salary) ?? 0;
+
                 <tr>
-                    <td class="fw-semibold fs-6">@department.Name</td>
-                     <td>@(department.Employees?.Count ?? 0)</td>
-                     <td>
+                    <td class="department-name">@department.Name</td>
+                    <td class="employee-count">@empCount</td>
+                    <td class="salary-sum">@salarySum</td>
+                    <td>
                         <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <a asp-action="EditCategory" asp-controller="Category" asp-area="Admin" asp-route-id="@department.Id"
+                            <a asp-action="EditDepartment" asp-controller="Department" asp-area="Manager" asp-route-id="@department.Id"
                                class="btn btn-sm btn-warning text-white shadow-sm">
                                 <i class="bi bi-pencil-square me-1"></i> تعديل
                             </a>
 
-                            <form asp-action="SoftDeleteCategory" asp-controller="Category" method="post" asp-area="Admin" class="delete-form">
-                                <input type="hidden" name="id" value="@department.Id" />
-                                <button type="submit" class="btn btn-sm btn-danger text-white shadow-sm delete-btn">
-                                    <i class="bi bi-trash me-1"></i> حذف
+                            @if (empCount == 0)
+                            {
+                                <form asp-action="DeleteDepartment" asp-controller="Department" asp-area="Manager" method="post" class="delete-form">
+                                    <input type="hidden" name="id" value="@department.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger text-white shadow-sm delete-btn">
+                                        <i class="bi bi-trash me-1"></i> حذف
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-secondary text-white shadow-sm" disabled title="لا يمكن حذف قسم به موظفين">
+                                    <i class="bi bi-lock me-1"></i> لا يمكن الحذف
                                 </button>
-                            </form>
-
+                            }
                         </div>
                     </td>
                 </tr>
@@ -72,24 +96,58 @@
         </tbody>
     </table>
 </div>
-<script>
-    document.querySelectorAll('.delete-form').forEach(form => {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault(); // منع الإرسال الفوري
-            Swal.fire({
-                title: 'هل أنت متأكد؟',
-                text: "لن تتمكن من التراجع عن هذا!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'نعم، احذفه!',
-                cancelButtonText: 'إلغاء'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit(); // إرسال الفورم لو تأكد المستخدم
-                }
+
+@section Scripts {
+    <script>
+        function updateCounters() {
+            let totalEmployees = 0;
+            let totalSalaries = 0;
+
+            $('#departmentTable tbody tr:visible').each(function () {
+                let empCount = parseInt($(this).find('.employee-count').text()) || 0;
+                let salary = parseFloat($(this).find('.salary-sum').text()) || 0;
+
+                totalEmployees += empCount;
+                totalSalaries += salary;
+            });
+
+            $('#employeeCount').text(totalEmployees);
+            $('#salaryTotal').text(totalSalaries.toLocaleString());
+        }
+
+        $(document).ready(function () {
+            updateCounters();
+
+            $('#searchInput').on('keyup', function () {
+                const keyword = $(this).val().toLowerCase();
+
+                $('#departmentTable tbody tr').each(function () {
+                    const deptName = $(this).find('.department-name').text().toLowerCase();
+                    $(this).toggle(deptName.includes(keyword));
+                });
+
+                updateCounters();
+            });
+
+            $('.delete-form').on('submit', function (e) {
+                e.preventDefault();
+                const form = this;
+
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: 'لن تتمكن من التراجع عن هذا!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، احذفه',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
+}

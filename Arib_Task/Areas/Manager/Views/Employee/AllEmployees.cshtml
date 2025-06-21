@@ -1,0 +1,53 @@
+﻿@using Arib_Task.Areas.Manager.ViewModels.EmployeeViewModels
+@model IEnumerable<EmployeeDetailsViewModel>
+
+@{
+    ViewData["Title"] = "كل الموظفين";
+}
+
+<div class="container my-5">
+    <h2 class="text-primary fw-bold mb-4">كل الموظفين</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center rounded-4 shadow-sm">
+            لا يوجد موظفين حالياً.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover shadow-sm rounded-4 text-center align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>الصورة</th>
+                        <th>الاسم</th>
+                        <th>الراتب</th>
+                        <th>القسم</th>
+                        <th>المدير</th>
+                         <th>التحكم</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in Model)
+                    {
+                        <tr>
+                            <td style="width: 100px;">
+                                <img src="@(string.IsNullOrEmpty(emp.ImageUrl) ? "/images/no-image.png" : emp.ImageUrl)"
+                                     alt="صورة الموظف"
+                                     style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;" />
+                            </td>
+                            <td>@emp.FullName</td>
+                            <td>@emp.Salary.ToString("C")</td>
+                            <td>@emp.DepartmentName</td>
+                            <td>@emp.ManagerName</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">إضافة مهمه</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

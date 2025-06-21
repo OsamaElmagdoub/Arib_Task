@@ -1,10 +1,8 @@
 ﻿using Arib_Task.Models;
 using Arib_Task.ViewModels.AccountViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Arib_Task.Controllers
 {
@@ -21,19 +19,13 @@ namespace Arib_Task.Controllers
             _signInManager = signInManager;
         }
 
-        
 
-        
-
-        //get : login 
         [HttpGet]
-
         public IActionResult Login()
         {
             return View();
         }
 
-        // Post : Login
         [HttpPost]
 
         public async Task<IActionResult> Login(LoginViewModel loginViewModel)
@@ -65,11 +57,11 @@ namespace Arib_Task.Controllers
             {
 
 
-                if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                if (await _userManager.IsInRoleAsync(user, "Manager"))
+                    return RedirectToAction("Index", "Dashboard", new { area = "Manager" });
                 else
                 {
-                    return RedirectToAction("Index", "Home"); // للمستخدم العادي
+                    return RedirectToAction("Index", "Home"); 
 
                 }
 

@@ -17,9 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Manager\DTOS\Product\" />
+    <Folder Include="Areas\Manager\Enums\" />
+    <Folder Include="Areas\Manager\ViewModels\EmpTask\" />
     <Folder Include="Services\" />
-    <Folder Include="ViewModels\CategoryViewModel\" />
   </ItemGroup>
 
 </Project>
